@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
+use Illuminate\Routing\RouteGroup;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,4 +30,22 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+Route::get('/admin', function () {
+    return "<h1>Admin</h1>";
+})->middleware(['auth', 'verified', 'role:admin']);
+
+Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->group(function () {
+    Route::get('/all-user', [UserController::class, 'index'])->name('admin.getUser');
+    Route::get('/userbyid/{id}', [UserController::class, 'show'])->name('admin.getByid');
+});
+
+
+Route::get('/writer', function () {
+    return "<h1>Writer</h1>";
+})->middleware(['auth', 'verified', 'role:writer|admin']);
+
+Route::get('/article', function () {
+    return "<h1>Article</h1>";
+})->middleware(['auth', 'verified', 'role_or_permission:read-article|admin']);
+
+require __DIR__ . '/auth.php';
